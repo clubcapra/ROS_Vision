@@ -1,0 +1,33 @@
+line_detector:
+  blur:
+    type: Blur
+    input: /capra_camera/image
+    ksize: 5
+  hsv:
+    type: BGR2HSV
+    input: blur/output
+  thresh:
+    type: HSVThreshold
+    input: hsv/output
+    min_hue: 122
+    max_hue: 160
+    min_saturation: 60
+    min_value: 25
+  pfilter:
+    type: ParticleFilter
+    input: thresh/output
+    min_area: 20
+    kernel_height: 5
+    kernel_width: 5
+  perspective:
+    type: PerspectiveTransform
+    input: pfilter/output
+  resize:
+    type: ResizeRatio
+    input: perspective/output
+    width: 20
+    height: 20
+  topointcloud:
+    type: BitwiseToPointCloud
+    input: resize/output
+    cloud: /cloud_in

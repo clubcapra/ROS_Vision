@@ -1,0 +1,13 @@
+<launch>
+  <arg name="workspace" default="demo_lignes_mauves_test" />
+
+  <node pkg="ros_vision" name="master_node" type="master_node.py" output="screen">
+    <param name="workspace" value="$(arg workspace)" />
+  </node>
+
+  <!-- <node pkg="ros_vision" name="web_ui_node" type="web_ui_node.py" output="screen" /> -->
+
+  <node pkg="ros_vision" name="webcam_node" type="webcam_node.py" />
+  
+  <node pkg="rviz" name="rviz" type="rviz" args="-d $(env HOME)/ros_vision/rviz/line_detector.rviz" />
+</launch>
