@@ -18,6 +18,7 @@ import cv2
 import os.path
 import base64
 import json
+import signal
 from WebUI.util.message_encoder import MessageEncoder
 import datetime
 
@@ -273,6 +274,10 @@ rospy.init_node('web_ui')
 client_refresh_rate = datetime.timedelta(seconds=rospy.get_param('~input_topic_refresh_rate', 1))
 input_topic_types = rospy.get_param('~input_topic_types', {'sensor_msgs/Image' : Image, 'sensor_msgs/PointCloud2': PointCloud2, 'sensor_msgs/CompressedImage' : CompressedImage})
 
+def signal_handler(signum, frame):
+    tornado.ioloop.IOLoop.instance().stop()
+
 http_server = tornado.httpserver.HTTPServer(WebUI())
 http_server.listen(8888)
+signal.signal(signal.SIGINT, signal_handler)
 tornado.ioloop.IOLoop.instance().start()
