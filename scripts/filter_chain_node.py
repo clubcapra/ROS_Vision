@@ -80,7 +80,8 @@ while not rospy.is_shutdown():
         if len(avg_stats) > 0:
             stat_msg = ros_vision.msg.Statistics()
             for name in avg_stats.keys():
-                stat_msg.filters.append(ros_vision.msg.FilterStatistics(name=name, average_execution_time=avg_stats[name], last_execution_time=last_stats[name]))
+                if name in last_stats:
+                    stat_msg.filters.append(ros_vision.msg.FilterStatistics(name=name, average_execution_time=avg_stats[name], last_execution_time=last_stats[name]))
             stat_msg.average_execution_time = sum(avg_stats.values())
             stats_topic.publish(stat_msg)
 
