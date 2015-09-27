@@ -180,12 +180,13 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
 
 class WebUI(tornado.web.Application):
     def __init__(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         handlers = [
             (r"/", DashBoardHandler),
-            (r"/styles/(.*)", tornado.web.StaticFileHandler, {"path": "WebUI/assets/css"}),
-            (r"/scripts/(.*)", tornado.web.StaticFileHandler, {"path": "WebUI/assets/js"}),
-            (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "WebUI/assets/img"}),
-            (r"/fonts/(.*)", tornado.web.StaticFileHandler, {"path": "WebUI/assets/fonts"}),
+            (r"/styles/(.*)", tornado.web.StaticFileHandler, {"path": base_dir + "/WebUI/assets/css"}),
+            (r"/scripts/(.*)", tornado.web.StaticFileHandler, {"path": base_dir + "/WebUI/assets/js"}),
+            (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": base_dir + "/assets/img"}),
+            (r"/fonts/(.*)", tornado.web.StaticFileHandler, {"path": base_dir + "/assets/fonts"}),
             (r"/input([0-9]+)/", InputsHandler),
             (r"/topics/", TopicsHandler),
             (r"/filters/", FiltersHandler),
