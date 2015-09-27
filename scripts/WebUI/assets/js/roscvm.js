@@ -66,24 +66,25 @@ function create_filter_group(filter_group_name, position) {
             }
         });
 
-        $( "#filter-dialog" ).dialog({
+        function addFilter() {
+            var order = 0;
+            create_filter(filter_group_name, $("#edit-filter-name").val(), type, {}, position);
+
+            filters(filter_group_name).each(function() {
+                if($(this).find(".filter-name").text() === $("#edit-filter-name").val()) return false;
+                order++;
+            });
+
+            $("#filter-dialog").dialog( "close" );
+            send_create_filter(filter_group_name, $("#edit-filter-name").val(), type, order);
+        }
+
+        $("#filter-dialog").dialog({
             resizable: false,
             height: 220,
             modal: true,
             buttons: {
-                "Add Filter": function() {
-                    var order = 0;
-
-                    create_filter(filter_group_name, $("#edit-filter-name").val(), type, {}, position);
-
-                    filters(filter_group_name).each(function() {
-                        if($(this).find(".filter-name").text() === $("#edit-filter-name").val()) return false;
-                        order++;
-                    });
-
-                    $(this).dialog( "close" );
-                    send_create_filter(filter_group_name, $("#edit-filter-name").val(), type, order);
-                },
+                "Add Filter": addFilter,
                 Cancel: function() {
                     $("#edit-filter-name").val("");
                     $(this).dialog( "close" );
@@ -91,12 +92,16 @@ function create_filter_group(filter_group_name, position) {
             }
         });
 
-        $("#edit-filter-name").val("");
+        $("#edit-filter-name").val("").keypress(function(e) {
+            if(e.keyCode == 13) {
+                addFilter();
+            }
+        });
         $(".ui-dialog-buttonpane button:contains('Add Filter')").button("disable");
     });
 
     $.each(filter_metadata, function(i, f) {
-         $(filter_picker).append($('<li><a href="#">' + f.name + '</a></li>'));
+        $(filter_picker).append($('<li><a href="#">' + f.name + '</a></li>'));
     });
 
     position = default_value(position, $("#workspace").children().size() - 1);
@@ -226,50 +231,50 @@ function create_filter(filter_group_name, filter_name, type, options, position) 
     // Initialize Filter Inputs
     for(i in inputs) {
         jsp.addEndpoint(new_filter.find(".filter-inputs"),
-            {
-                uuid: "__" + filter_group_name + "__" + filter_name + "__" + inputs[i].name,
-                anchor:[0.5, (parseInt(i) + 1) * (1.0 / (inputs.length + 1)), -1, 0]
-            },
-            {
-                endpoint: ["Dot", {radius: 10} ],
-                cssClass: "input",
-                hoverClass: "input-hover",
-                paintStyle: { fillStyle: "#d9534f", opacity: 0.5 },
-                isTarget: true,
-                scope: inputs[i].type,
-                overlays:[
-                    [ "Label", { location: [0, -1.2], label: '<span class="input-type label label-danger">' + inputs[i].type + '</span>&nbsp;<strong class="input-name">' + inputs[i].name + '</strong>', cssClass: "input-label" } ]
-                ]
-            }
-        );
+                        {
+                            uuid: "__" + filter_group_name + "__" + filter_name + "__" + inputs[i].name,
+                            anchor:[0.5, (parseInt(i) + 1) * (1.0 / (inputs.length + 1)), -1, 0]
+                        },
+                        {
+                            endpoint: ["Dot", {radius: 10} ],
+                            cssClass: "input",
+                            hoverClass: "input-hover",
+                            paintStyle: { fillStyle: "#d9534f", opacity: 0.5 },
+                            isTarget: true,
+                            scope: inputs[i].type,
+                            overlays:[
+                                [ "Label", { location: [0, -1.2], label: '<span class="input-type label label-danger">' + inputs[i].type + '</span>&nbsp;<strong class="input-name">' + inputs[i].name + '</strong>', cssClass: "input-label" } ]
+                            ]
+                        }
+                       );
     }
 
     // Initialize Filter Outputs
     for(i in outputs) {
         jsp.addEndpoint(new_filter.find(".filter-outputs"),
-            {
-                uuid: "__" + filter_group_name + "__" + filter_name + "__" + outputs[i].name,
-                anchor:[0.5, (parseInt(i) + 1) * (1.0 / (outputs.length + 1)), 1, 0]
-            },
-            {
-                endpoint: ["Dot", {radius: 10} ],
-                cssClass: "output",
-                hoverClass: "output-hover",
-                paintStyle: { fillStyle: "#5bc0de", opacity: 0.5 },
-                isSource: true,
-                scope: outputs[i].type,
-                maxConnections: -1,
-                connector: [ "Bezier" ],
-                connectorStyle: {
-                    gradient: { stops:[ [ 0, "#5bc0de" ], [ 1, "#d9534f" ] ] },
-                    strokeStyle: "#d9534f",
-                    lineWidth: 5
-                },
-                overlays:[
-                    [ "Label", { location: [0, -1.2], label: '<span class="input-type label label-info">' + outputs[i].type + '</span>&nbsp;<strong class="input-name">' + outputs[i].name + '</strong>', cssClass: "output-label" } ]
-                ]
-            }
-        );
+                        {
+                            uuid: "__" + filter_group_name + "__" + filter_name + "__" + outputs[i].name,
+                            anchor:[0.5, (parseInt(i) + 1) * (1.0 / (outputs.length + 1)), 1, 0]
+                        },
+                        {
+                            endpoint: ["Dot", {radius: 10} ],
+                            cssClass: "output",
+                            hoverClass: "output-hover",
+                            paintStyle: { fillStyle: "#5bc0de", opacity: 0.5 },
+                            isSource: true,
+                            scope: outputs[i].type,
+                            maxConnections: -1,
+                            connector: [ "Bezier" ],
+                            connectorStyle: {
+                                gradient: { stops:[ [ 0, "#5bc0de" ], [ 1, "#d9534f" ] ] },
+                                strokeStyle: "#d9534f",
+                                lineWidth: 5
+                            },
+                            overlays:[
+                                [ "Label", { location: [0, -1.2], label: '<span class="input-type label label-info">' + outputs[i].type + '</span>&nbsp;<strong class="input-name">' + outputs[i].name + '</strong>', cssClass: "output-label" } ]
+                            ]
+                        }
+                       );
     }
 
     // Show Filter Properties
@@ -284,64 +289,64 @@ function create_filter(filter_group_name, filter_name, type, options, position) 
 
             switch(p.type) {
                 // String parameter
-                case "str":
-                    var select_options = null;
+            case "str":
+                var select_options = null;
 
-                    // FIXME: This shouldn't be in the "min" parameter...
-                    try {
-                        select_options = JSON.parse(p.min.replace(/'/g, "\""));
-                    } catch(err) { }
+                // FIXME: This shouldn't be in the "min" parameter...
+                try {
+                    select_options = JSON.parse(p.min.replace(/'/g, "\""));
+                } catch(err) { }
 
-                    // Is it a dropdown list?
-                    if($.isArray(select_options)) {
-                        parameter_container.find(".input-group").prepend($('<select id="' + p.name + '" class="parameter-value form-control" />'));
+                // Is it a dropdown list?
+                if($.isArray(select_options)) {
+                    parameter_container.find(".input-group").prepend($('<select id="' + p.name + '" class="parameter-value form-control" />'));
 
-                        $.each(select_options, function (index, option) {
-                            parameter_container.find("#" + p.name).append($("<option>", {text: option, value: option}));
-                        });
-
-                        parameter_container.find("#" + p.name).change(function () { send_set_parameter(filter_group_name, filter_name, p.name, $(this).val()) });
-                    } else {
-                        parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="text" class="parameter-value form-control" value="' + p.default + '" />'));
-                        parameter_container.find("#" + p.name).on("input", function () { send_set_parameter(filter_group_name, filter_name, p.name, $(this).val()) });
-                    }
-
-                    parameter_container.find(".reset-parameter").click(function() {
-                        $("#" + p.name).val(p.default);
-                    });
-                    break;
-
-                // Numeric parameter
-                case "float":
-                case "int":
-                    parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="text" class="parameter-value form-control" value="' + p.default + '" />'));
-
-                    if($.isNumeric(p.min) && $.isNumeric(p.max)) {
-                        parameter_container.find(".input-group").before($('<div id="' + p.name + '-slider" class="slider"></div>'));
-                    }
-
-                    parameter_container.find("#" + p.name).on("input", function () {
-                        if($.isNumeric($(this).val())) {
-                            $("#" + p.name + "-slider").slider("value", $(this).val());
-                            send_set_parameter(filter_group_name, filter_name, p.name, $(this).val());
-                        }
-                    });
-
-                    parameter_container.find(".reset-parameter").click(function() {
-                        $("#" + p.name).val(p.default);
-                    });
-                    break;
-
-                // Boolean parameter
-                case "bool":
-                    parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="checkbox" class="parameter-value form-control" />'));
-
-                    parameter_container.find(".reset-parameter").click(function() {
-                        $("#" + p.name).prop('checked', p.default);
+                    $.each(select_options, function (index, option) {
+                        parameter_container.find("#" + p.name).append($("<option>", {text: option, value: option}));
                     });
 
                     parameter_container.find("#" + p.name).change(function () { send_set_parameter(filter_group_name, filter_name, p.name, $(this).val()) });
-                    break;
+                } else {
+                    parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="text" class="parameter-value form-control" value="' + p.default + '" />'));
+                    parameter_container.find("#" + p.name).on("input", function () { send_set_parameter(filter_group_name, filter_name, p.name, $(this).val()) });
+                }
+
+                parameter_container.find(".reset-parameter").click(function() {
+                    $("#" + p.name).val(p.default);
+                });
+                break;
+
+                // Numeric parameter
+            case "float":
+            case "int":
+                parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="text" class="parameter-value form-control" value="' + p.default + '" />'));
+
+                if($.isNumeric(p.min) && $.isNumeric(p.max)) {
+                    parameter_container.find(".input-group").before($('<div id="' + p.name + '-slider" class="slider"></div>'));
+                }
+
+                parameter_container.find("#" + p.name).on("input", function () {
+                    if($.isNumeric($(this).val())) {
+                        $("#" + p.name + "-slider").slider("value", $(this).val());
+                        send_set_parameter(filter_group_name, filter_name, p.name, $(this).val());
+                    }
+                });
+
+                parameter_container.find(".reset-parameter").click(function() {
+                    $("#" + p.name).val(p.default);
+                });
+                break;
+
+                // Boolean parameter
+            case "bool":
+                parameter_container.find(".input-group").prepend($('<input id="' + p.name + '" type="checkbox" class="parameter-value form-control" />'));
+
+                parameter_container.find(".reset-parameter").click(function() {
+                    $("#" + p.name).prop('checked', p.default);
+                });
+
+                parameter_container.find("#" + p.name).change(function () { send_set_parameter(filter_group_name, filter_name, p.name, $(this).val()) });
+                break;
             }
 
             $("#filter-properties").append(parameter_container);
@@ -382,7 +387,7 @@ function create_filter(filter_group_name, filter_name, type, options, position) 
             }
         });
 
-        $( "#filter-dialog" ).dialog({
+        $("#filter-dialog").dialog({
             resizable: false,
             height: 220,
             modal: true,
@@ -399,7 +404,12 @@ function create_filter(filter_group_name, filter_name, type, options, position) 
             }
         });
 
-        $("#edit-filter-name").val(filter_name);
+        $("#edit-filter-name").val(filter_name).keypress(function(e) {
+            if(e.keyCode == 13) {
+                $("#filter-dialog").dialog('close');
+            }
+        });
+
         $(".ui-dialog-buttonpane button:contains('Edit Filter')").button("enable");
     });
 
@@ -655,15 +665,15 @@ function update_topic_list(data) {
                 $("#" + type.split(/\//).pop().toLowerCase() + "-inputs").append(input);
 
                 jsp.makeSource(input,
-                    {
-                        anchor: "Right",
-                        scope: type,
-                        connector: [ "Flowchart", { stub: [10, 10], alwaysRespectStubs: true, midpoint: 0.05 } ],
-                        connectorStyle: {
-                            strokeStyle: "#d9534f",
-                            lineWidth: 4
-                        }
-                    });
+                               {
+                                   anchor: "Right",
+                                   scope: type,
+                                   connector: [ "Flowchart", { stub: [10, 10], alwaysRespectStubs: true, midpoint: 0.05 } ],
+                                   connectorStyle: {
+                                       strokeStyle: "#d9534f",
+                                       lineWidth: 4
+                                   }
+                               });
             } else if(filters(topic_parts[1], topic_parts[2]).length != 0 && $("#" + topic.replace(/\//g, '__')).length != 0) {
                 jsp.detachAllConnections($("#" + topic.replace(/\//g, '__')));
                 $("#" + topic.replace(/\//g, '__')).remove();
@@ -712,7 +722,7 @@ function encode (input) {
             enc4 = 64;
         }
         output += keyStr.charAt(enc1) + keyStr.charAt(enc2) +
-                  keyStr.charAt(enc3) + keyStr.charAt(enc4);
+            keyStr.charAt(enc3) + keyStr.charAt(enc4);
     }
     return output;
 }
@@ -783,7 +793,7 @@ jsPlumb.ready(function() {
         });
 
         $.each(JSON.parse(evt.data), function(i, fc) {
-             $("#workspace-picker").append($("<option></option>").val(fc).text(fc));
+            $("#workspace-picker").append($("<option></option>").val(fc).text(fc));
         });
     };
 
@@ -912,19 +922,19 @@ jsPlumb.ready(function() {
         $(".ui-dialog-buttonpane button:contains('Add Filter Group')").button("disable");
     });
 
-	jsp = jsPlumb.getInstance({
-		Endpoint : ["Dot", {radius:2}],
-		HoverPaintStyle : {strokeStyle:"#d9534f", lineWidth:2 },
-		ConnectionOverlays : [
-			[ "Arrow", {
-				location:1,
-				id:"arrow",
+    jsp = jsPlumb.getInstance({
+	Endpoint : ["Dot", {radius:2}],
+	HoverPaintStyle : {strokeStyle:"#d9534f", lineWidth:2 },
+	ConnectionOverlays : [
+	    [ "Arrow", {
+		location:1,
+		id:"arrow",
                 length:14,
                 foldback:0.8
-			} ]
-		],
-		Container:"gui-body"
-	});
+	    } ]
+	],
+	Container:"gui-body"
+    });
 
     jsp.doWhileSuspended(function() {
         jsp.bind("connection", on_connection_change);
