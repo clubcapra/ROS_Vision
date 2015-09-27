@@ -285,6 +285,7 @@ rospy.init_node('web_ui')
 
 client_refresh_rate = datetime.timedelta(seconds=rospy.get_param('~input_topic_refresh_rate', 1))
 input_topic_types = rospy.get_param('~input_topic_types', {'sensor_msgs/Image' : Image, 'sensor_msgs/PointCloud2': PointCloud2, 'sensor_msgs/CompressedImage' : CompressedImage})
+port = int(rospy.get_param('~port', '8888'))
 
 def signal_handler(signum, frame):
     print 'stopping...'
@@ -293,6 +294,6 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 http_server = tornado.httpserver.HTTPServer(WebUI())
-http_server.listen(8888)
+http_server.listen(port)
 signal.signal(signal.SIGINT, signal_handler)
 tornado.ioloop.IOLoop.instance().start()
