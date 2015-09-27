@@ -5,9 +5,9 @@
     <param name="workspace" value="$(arg workspace)" />
   </node>
 
-  <!-- <node pkg="ros_vision" name="web_ui_node" type="web_ui_node.py" output="screen" /> -->
+  <node pkg="ros_vision" name="web_ui_node" type="web_ui_node.py" output="screen" />
 
-  <node pkg="ros_vision" name="webcam_node" type="webcam_node.py" />
-  
+  <node pkg="ros_vision" name="webcam_node" type="webcam_node.py" />1
+
   <node pkg="rviz" name="rviz" type="rviz" args="-d $(env HOME)/ros_vision/rviz/line_detector.rviz" />
 </launch>

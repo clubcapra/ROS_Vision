@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import uuid
+import sys
 
 import tornado.httpserver
 import tornado.ioloop
@@ -26,6 +27,8 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
     clients = set()
 
     def open(self):
+        print 'MasterHandler opened'
+
         self.id = uuid.uuid4()
         MasterHandler.clients.add(self)
 
@@ -82,10 +85,10 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
 
                 self.write_message(json.dumps({
                     "parameter":
-                        {
-                            "name": service_data["parameter_name"],
-                            "value": service(req).parameter_value
-                        }
+                    {
+                        "name": service_data["parameter_name"],
+                        "value": service(req).parameter_value
+                    }
                 }))
 
                 return
@@ -209,6 +212,8 @@ class DashBoardHandler(tornado.web.RequestHandler):
 
 class InputsHandler(tornado.websocket.WebSocketHandler):
     def open(self, topic):
+        print 'InputsHandler opened'
+
         self.input_subscriber = None
 
     def on_message(self, message):
@@ -230,6 +235,8 @@ class InputsHandler(tornado.websocket.WebSocketHandler):
 
 class TopicsHandler(tornado.websocket.WebSocketHandler):
     def open(self):
+        print 'TopicsHandler opened'
+
         self.send_topics()
 
     def send_topics(self):
@@ -243,12 +250,16 @@ class TopicsHandler(tornado.websocket.WebSocketHandler):
 
 class FiltersHandler(tornado.websocket.WebSocketHandler):
     def open(self):
+        print 'FiltersHandler opened'
+
         rospy.wait_for_service('/vision_master/list_filter_types')
         list_filter_types = rospy.ServiceProxy('/vision_master/list_filter_types', ros_vision.srv.ListFilterTypes)
         self.write_message(json.dumps(list_filter_types().filter_list.filters, cls=MessageEncoder))
 
 class LoadHandler(tornado.websocket.WebSocketHandler):
     def open(self):
+        print 'LoadHandler opened'
+
         rospy.wait_for_service('/vision_master/list_workspaces')
         list_workspaces = rospy.ServiceProxy('/vision_master/list_workspaces', ros_vision.srv.ListWorkspaces)
         self.write_message(json.dumps(list_workspaces().workspaces))
@@ -276,7 +287,10 @@ client_refresh_rate = datetime.timedelta(seconds=rospy.get_param('~input_topic_r
 input_topic_types = rospy.get_param('~input_topic_types', {'sensor_msgs/Image' : Image, 'sensor_msgs/PointCloud2': PointCloud2, 'sensor_msgs/CompressedImage' : CompressedImage})
 
 def signal_handler(signum, frame):
+    print 'stopping...'
+
     tornado.ioloop.IOLoop.instance().stop()
+    sys.exit(0)
 
 http_server = tornado.httpserver.HTTPServer(WebUI())
 http_server.listen(8888)
