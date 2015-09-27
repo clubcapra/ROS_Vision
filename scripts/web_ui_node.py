@@ -32,8 +32,8 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
         self.id = uuid.uuid4()
         MasterHandler.clients.add(self)
 
-        rospy.wait_for_service('/vision_master/get_workspace')
-        get_workspace = rospy.ServiceProxy('/vision_master/get_workspace', ros_vision.srv.GetWorkspace)
+        rospy.wait_for_service('/master_node/get_workspace')
+        get_workspace = rospy.ServiceProxy('/master_node/get_workspace', ros_vision.srv.GetWorkspace)
         self.write_message(json.dumps(get_workspace(), cls=MessageEncoder))
 
     def on_message(self, message):
@@ -129,7 +129,7 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
                     }
                 }, self)
             elif service_name == "create_filtergroup":
-                formatted_service_name = '/vision_master/%s' % service_name
+                formatted_service_name = '/master_node/%s' % service_name
 
                 req = ros_vision.srv.CreateFilterGroupRequest()
                 req.name = service_data["filter_group_name"]
@@ -146,7 +146,7 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
                     }
                 }, self)
             elif service_name == "delete_filtergroup":
-                formatted_service_name = '/vision_master/%s' % service_name
+                formatted_service_name = '/master_node/%s' % service_name
 
                 req = ros_vision.srv.DeleteFilterGroupRequest()
                 req.name = service_data["filter_group_name"]
@@ -169,8 +169,8 @@ class MasterHandler(tornado.websocket.WebSocketHandler):
     @staticmethod
     def notify_clients(data=None, exclude=None):
         if data is None:
-            rospy.wait_for_service('/vision_master/get_workspace')
-            get_workspace = rospy.ServiceProxy('/vision_master/get_workspace', ros_vision.srv.GetWorkspace)
+            rospy.wait_for_service('/master_node/get_workspace')
+            get_workspace = rospy.ServiceProxy('/master_node/get_workspace', ros_vision.srv.GetWorkspace)
             data = get_workspace()
 
         if exclude is not None:
@@ -252,24 +252,24 @@ class FiltersHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print 'FiltersHandler opened'
 
-        rospy.wait_for_service('/vision_master/list_filter_types')
-        list_filter_types = rospy.ServiceProxy('/vision_master/list_filter_types', ros_vision.srv.ListFilterTypes)
+        rospy.wait_for_service('/master_node/list_filter_types')
+        list_filter_types = rospy.ServiceProxy('/master_node/list_filter_types', ros_vision.srv.ListFilterTypes)
         self.write_message(json.dumps(list_filter_types().filter_list.filters, cls=MessageEncoder))
 
 class LoadHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print 'LoadHandler opened'
 
-        rospy.wait_for_service('/vision_master/list_workspaces')
-        list_workspaces = rospy.ServiceProxy('/vision_master/list_workspaces', ros_vision.srv.ListWorkspaces)
+        rospy.wait_for_service('/master_node/list_workspaces')
+        list_workspaces = rospy.ServiceProxy('/master_node/list_workspaces', ros_vision.srv.ListWorkspaces)
         self.write_message(json.dumps(list_workspaces().workspaces))
 
     def on_message(self, message):
         req = ros_vision.srv.LoadWorkspaceRequest()
         req.name = message.encode('ascii','ignore')
 
-        rospy.wait_for_service('/vision_master/load_workspace')
-        load_workspace = rospy.ServiceProxy('/vision_master/load_workspace', ros_vision.srv.LoadWorkspace)
+        rospy.wait_for_service('/master_node/load_workspace')
+        load_workspace = rospy.ServiceProxy('/master_node/load_workspace', ros_vision.srv.LoadWorkspace)
         MasterHandler.notify_clients(load_workspace(req))
 
 class SaveHandler(tornado.websocket.WebSocketHandler):
@@ -277,8 +277,8 @@ class SaveHandler(tornado.websocket.WebSocketHandler):
         req = ros_vision.srv.SaveWorkspaceRequest()
         req.name = message
 
-        rospy.wait_for_service('/vision_master/save_workspace')
-        save_workspace = rospy.ServiceProxy('/vision_master/save_workspace', ros_vision.srv.SaveWorkspace)
+        rospy.wait_for_service('/master_node/save_workspace')
+        save_workspace = rospy.ServiceProxy('/master_node/save_workspace', ros_vision.srv.SaveWorkspace)
         save_workspace(req)
 
 rospy.init_node('web_ui')
