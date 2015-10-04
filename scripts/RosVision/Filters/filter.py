@@ -16,7 +16,12 @@ class Filter:
         self.name = name
         self._init_params(params)
         self._init_io()
-        self.initialize()
+
+        try:
+            self.initialize()
+        except Exception as e:
+            print 'initialize exception: %s' % e
+
         print "=============================="
 
     def _init_params(self, params):
@@ -111,6 +116,3 @@ class Filter:
                             pass
 
         return descriptors
-
-
-
